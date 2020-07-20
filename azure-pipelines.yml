@@ -1,5 +1,4 @@
 trigger:
-<<<<<<< HEAD
 - '*'
 
 pool:
@@ -7,39 +6,21 @@ pool:
   demands:
   - npm
 
-=======
-  - '*'
-  
-pool:
-  vmImage: 'ubuntu-18.04'
-  demands:
-      - npm
-  
->>>>>>> b4ccfcebb24dbde9198c9f865d21d0df0b408806
 variables:
   buildConfiguration: 'Release'
   wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
   dotnetSdkVersion: '3.1.300'
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> b4ccfcebb24dbde9198c9f865d21d0df0b408806
 steps:
 - task: UseDotNet@2
   displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
   inputs:
     version: '$(dotnetSdkVersion)'
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> b4ccfcebb24dbde9198c9f865d21d0df0b408806
 - task: Npm@1
   displayName: 'Run npm install'
   inputs:
     verbose: false
-<<<<<<< HEAD
 
 - script: './node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)'
   displayName: 'Compile Sass assets'
@@ -51,48 +32,47 @@ steps:
   displayName: 'Write build info'
   workingDirectory: $(wwwrootDir)
 
-=======
-  
-- script: './node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)'
-  displayName: 'Compile Sass assets'
-  
-- task: gulp@1
-  displayName: 'Run gulp tasks'
-  
-- script: 'echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt'
-  displayName: 'Write build info'
-  workingDirectory: $(wwwrootDir)
-  
->>>>>>> b4ccfcebb24dbde9198c9f865d21d0df0b408806
 - task: DotNetCoreCLI@2
   displayName: 'Restore project dependencies'
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> b4ccfcebb24dbde9198c9f865d21d0df0b408806
 - task: DotNetCoreCLI@2
   displayName: 'Build the project - $(buildConfiguration)'
   inputs:
     command: 'build'
     arguments: '--no-restore --configuration $(buildConfiguration)'
     projects: '**/*.csproj'
-<<<<<<< HEAD
+
+- task: DotNetCoreCLI@2
+  displayName: 'Install .NET Core tools from local manifest'
+  inputs:
+    command: custom
+    custom: tool
+    arguments: 'restore'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests - $(buildConfiguration)'
   inputs:
     command: 'test'
-    arguments: '--no-build --configuration $(buildConfiguration)'
+    arguments: '--no-build --configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
     publishTestResults: true
     projects: '**/*.Tests.csproj'
 
-=======
-  
->>>>>>> b4ccfcebb24dbde9198c9f865d21d0df0b408806
+- task: DotNetCoreCLI@2
+  displayName: 'Create code coverage report'
+  inputs:
+    command: custom
+    custom: tool
+    arguments: 'run reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines'
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage report'
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+
 - task: DotNetCoreCLI@2
   displayName: 'Publish the project - $(buildConfiguration)'
   inputs:
@@ -101,12 +81,7 @@ steps:
     publishWebProjects: false
     arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
     zipAfterPublish: true
-<<<<<<< HEAD
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
   condition: succeeded()
-=======
-  
-  
->>>>>>> b4ccfcebb24dbde9198c9f865d21d0df0b408806
